@@ -40,7 +40,7 @@
       ORDER BY peliculas.titulo")) {
         if ($result->num_rows != 0) {
           echo "<form action='index.php'>
-          <input type='hidden' name='action' value='buscarLibros'>
+          <input type='hidden' name='action' value='buscarPeliculas'>
           <input type='text' name='textoBusqueda'>
           <input type='submit' value='Buscar'>
           </form><br>";
@@ -48,7 +48,6 @@
           echo "<table border ='1'>";
           while ($fila = $result->fetch_object()) {
             echo "<tr>";
-            echo "<td>" . $fila->idPelicula . "</td>";
             echo "<td>" . $fila->titulo . "</td>";
             echo "<td>" . $fila->genero . "</td>";
             echo "<td>" . $fila->pais . "</td>";
@@ -307,6 +306,60 @@
         echo "Ha ocurrido un error al modificar la pelicula. Por favor intente más tarde.";
       }
 
+      echo "<p><a href='index.php'>Volver</a></p>";
+    }
+
+    // --------------------------------- BUSCAR PELICULAS ----------------------------------------
+
+    public function buscarPeliculas()
+    {
+      $textoBusqueda = $_REQUEST["textoBusqueda"];
+      $textoBusquedaEscapado = $this->db->real_escape_string($textoBusqueda);
+      $textoBusquedaConComodines = "%$textoBusquedaEscapado%";
+
+      echo "<h1>Resultados de la búsqueda: \"$textoBusqueda\"</h1>";
+
+      $query = "SELECT peliculas.*, personas.nombre, personas.apellidos 
+          FROM peliculas
+          INNER JOIN actuan ON peliculas.id = actuan.idPelicula
+          INNER JOIN personas ON actuan.idPersona = personas.id
+          WHERE peliculas.titulo LIKE '$textoBusquedaConComodines'
+          OR peliculas.genero LIKE '$textoBusquedaConComodines'
+          OR personas.nombre LIKE '$textoBusquedaConComodines'
+          OR personas.apellidos LIKE '$textoBusquedaConComodines'
+          ORDER BY peliculas.titulo";
+
+      if ($result = $this->db->query($query)) {
+        if ($result->num_rows != 0) {
+          echo "<form action='index.php'>
+            <input type='hidden' name='action' value='buscarPeliculas'>
+            <input type='text' name='textoBusqueda'>
+            <input type='submit' value='Buscar'>
+          </form><br>";
+
+          echo "<table border ='1'>";
+          while ($fila = $result->fetch_object()) {
+            echo "<tr>";
+            echo "<td>" . $fila->titulo . "</td>";
+            echo "<td>" . $fila->genero . "</td>";
+            echo "<td>" . $fila->pais . "</td>";
+            echo "<td>" . $fila->nombre . "</td>";
+            echo "<td>" . $fila->apellidos . "</td>";
+            echo "<td><img src='./assets/" . $fila->cartel . "' width='100px;'></td>";
+            echo "<td><a href='index.php?action=formularioModificarPelicula&idPelicula=" . $fila->id . "'>Modificar</a></td>";
+            echo "<td><a href='index.php?action=borrarPelicula&idPelicula=" . $fila->id . "'>Borrar</a></td>";
+            echo "</tr>";
+          }
+          echo "</table>";
+        } else {
+          // La consulta no contiene registros
+          echo "No se encontraron datos";
+        }
+      } else {
+        // La consulta ha fallado
+        echo "Error al tratar de recuperar los datos de la base de datos. Por favor, inténtelo más tarde";
+      }
+      echo "<p><a href='index.php?action=formularioInsertarLibros'>Nuevo</a></p>";
       echo "<p><a href='index.php'>Volver</a></p>";
     }
   }
