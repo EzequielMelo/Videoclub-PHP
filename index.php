@@ -207,7 +207,7 @@
 
       $todosLosActores = $this->db->query("SELECT * FROM personas");
 
-      $actoresPelicula = $this->db->query("SELECT idPersona FROM actuan WHERE idPelicula = 'idPelicula'");
+      $actoresPelicula = $this->db->query("SELECT idPersona FROM actuan WHERE idPelicula = '$idPelicula'");
 
       $listaActoresPeliculas = array();
       while ($actor = $actoresPelicula->fetch_object()) {
@@ -216,11 +216,13 @@
 
       echo "Actores: <select name='actores[]' multiple size='3'>";
       while ($fila = $todosLosActores->fetch_object()) {
-        if (in_array($fila->idPersona, $listaActoresPeliculas))
-          echo "<option value='$fila->idPersona' selected>$fila->nombre $fila->apellido</option>";
-        else
-          echo "<option value='$fila->idPersona'>$fila->nombre $fila->apellido</option>";
-      }
+        if (in_array($fila->id, $listaActoresPeliculas)) {
+          echo "<option value='$fila->id' selected>$fila->nombre  $fila->apellidos</option>";
+        } else {
+          echo "<option value='$fila->id'>$fila->nombre  $fila->apellidos</option>";
+        }
+      };
+
       echo "</select>";
 
       echo "<a href='index.php?action=formularioInsertarActores'>Añadir nuevo</a><br>";
